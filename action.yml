@@ -1,0 +1,93 @@
+# GitHub Action: 从 RSS 源列表聚合文章并生成 feeds.json
+# 可发布到 GitHub Action 市场，供其他仓库使用
+# @see https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions
+
+name: "Feeds Aggregator"
+description: "Concurrently fetch RSS/Atom feeds from a sources file and write a single feeds.json (with retry and logging)."
+branding:
+  icon: "rss"
+  color: "orange"
+
+inputs:
+  sources:
+    description: "Path to the txt file with one RSS URL per line (relative to workspace)"
+    required: true
+    default: "data/rss.txt"
+  output:
+    description: "Path to the output feeds.json (relative to workspace)"
+    required: true
+    default: "data/feeds.json"
+  timezone:
+    description: "IANA timezone for the 'updated' field (e.g. Asia/Shanghai). Leave empty for runner local time."
+    required: false
+    default: "Asia/Shanghai"
+  workers:
+    description: "Number of concurrent fetch workers"
+    required: false
+    default: "8"
+  logdir:
+    description: "Directory for daily log files (relative to workspace). Empty to disable file logging."
+    required: false
+    default: "logs"
+  logretention:
+    description: "Keep log files only for the last N days (0 to disable cleanup). Used when logdir is set."
+    required: false
+    default: "7"
+  maxItemsPerFeed:
+    description: "Max items to take per RSS source (0 = unlimited). When > 0, keeps the latest N entries per feed."
+    required: false
+    default: "0"
+  maxTotalItems:
+    description: "Max total items in output (0 = unlimited). Applied after sort and dedup."
+    required: false
+    default: "0"
+  dedup:
+    description: "Deduplicate by link (true/false). When true, keeps the newest entry per link."
+    required: false
+    default: "true"
+
+outputs:
+  output-path:
+    description: "Absolute path of the written feeds.json file"
+    value: ${{ steps.aggregate.outputs.output-path }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: "1.21"
+
+    - name: Run feeds-aggregator
+      id: aggregate
+      shell: bash
+      env:
+        SOURCES: ${{ inputs.sources }}
+        OUTPUT: ${{ inputs.output }}
+        TZ: ${{ inputs.timezone }}
+        WORKERS: ${{ inputs.workers }}
+        LOGDIR: ${{ inputs.logdir }}
+        LOGRETENTION: ${{ inputs.logretention }}
+        MAXITEMSPERFEED: ${{ inputs.maxItemsPerFeed }}
+        MAXTOTALITEMS: ${{ inputs.maxTotalItems }}
+        DEDUP: ${{ inputs.dedup }}
+      run: |
+        set -e
+        cd "$GITHUB_ACTION_PATH"
+        SOURCES_ABS="${GITHUB_WORKSPACE}/${SOURCES}"
+        OUTPUT_ABS="${GITHUB_WORKSPACE}/${OUTPUT}"
+        echo "output-path=${OUTPUT_ABS}" >> "$GITHUB_OUTPUT"
+        LOG_ARGS=""
+        if [ -n "$LOGDIR" ]; then
+          LOG_ARGS="-logdir=${GITHUB_WORKSPACE}/${LOGDIR} -logretention=${LOGRETENTION}"
+        fi
+        go run . \
+          -sources="$SOURCES_ABS" \
+          -output="$OUTPUT_ABS" \
+          -workers="${WORKERS}" \
+          -timezone="${TZ}" \
+          -maxItemsPerFeed="${MAXITEMSPERFEED}" \
+          -maxTotalItems="${MAXTOTALITEMS}" \
+          -dedup="${DEDUP}" \
+          $LOG_ARGS

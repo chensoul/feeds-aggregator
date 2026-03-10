@@ -1,0 +1,85 @@
+{
+  "items": [
+    {
+      "category": "blog",
+      "blog_name": "@The Go Blog",
+      "title": "Allocating on the Stack",
+      "published": "2026-02-27 00:00:00",
+      "link": "https://go.dev/blog/allocation-optimizations",
+      "avatar": "https://go.dev/favicon.ico"
+    },
+    {
+      "category": "blog",
+      "blog_name": "@The Go Blog",
+      "title": "Using go fix to modernize Go code",
+      "published": "2026-02-17 00:00:00",
+      "link": "https://go.dev/blog/gofix",
+      "avatar": "https://go.dev/favicon.ico"
+    },
+    {
+      "category": "blog",
+      "blog_name": "@The Go Blog",
+      "title": "Go 1.26 is released",
+      "published": "2026-02-10 00:00:00",
+      "link": "https://go.dev/blog/go1.26",
+      "avatar": "https://go.dev/favicon.ico"
+    },
+    {
+      "category": "blog",
+      "blog_name": "@The Go Blog",
+      "title": "Results from the 2025 Go Developer Survey",
+      "published": "2026-01-21 00:00:00",
+      "link": "https://go.dev/blog/survey2025",
+      "avatar": "https://go.dev/favicon.ico"
+    },
+    {
+      "category": "blog",
+      "blog_name": "@The Go Blog",
+      "title": "Go’s Sweet 16",
+      "published": "2025-11-14 00:00:00",
+      "link": "https://go.dev/blog/16years",
+      "avatar": "https://go.dev/favicon.ico"
+    },
+    {
+      "category": "blog",
+      "blog_name": "@The Go Blog",
+      "title": "The Green Tea Garbage Collector",
+      "published": "2025-10-29 00:00:00",
+      "link": "https://go.dev/blog/greenteagc",
+      "avatar": "https://go.dev/favicon.ico"
+    },
+    {
+      "category": "blog",
+      "blog_name": "@The Go Blog",
+      "title": "Flight Recorder in Go 1.25",
+      "published": "2025-09-26 00:00:00",
+      "link": "https://go.dev/blog/flight-recorder",
+      "avatar": "https://go.dev/favicon.ico"
+    },
+    {
+      "category": "blog",
+      "blog_name": "@The Go Blog",
+      "title": "It's survey time! How has Go has been working out for you?",
+      "published": "2025-09-16 00:00:00",
+      "link": "https://go.dev/blog/survey2025-announce",
+      "avatar": "https://go.dev/favicon.ico"
+    },
+    {
+      "category": "blog",
+      "blog_name": "@The Go Blog",
+      "title": "A new experimental Go API for JSON",
+      "published": "2025-09-09 00:00:00",
+      "link": "https://go.dev/blog/jsonv2-exp",
+      "avatar": "https://go.dev/favicon.ico"
+    },
+    {
+      "category": "blog",
+      "blog_name": "@The Go Blog",
+      "title": "Testing Time (and other asynchronicities)",
+      "published": "2025-08-26 00:00:00",
+      "link": "https://go.dev/blog/testing-time",
+      "avatar": "https://go.dev/favicon.ico"
+    }
+  ],
+  "updated": "2026-03-10 13:34:34"
+}

@@ -1,0 +1,10 @@
+# RSS 源地址列表；空行与 # 开头的行会被忽略
+# 格式1：每行一个 URL
+# 格式2：分类,URL（逗号前为分类，会输出到 feeds.json 的 category，便于分类）
+#
+# 示例（请替换为自己的订阅源）：
+# https://blog.example.com/feed.xml
+# blog,https://another.com/atom.xml
+#
+# 下面是一条约用于测试的公开 feed，可删除或注释后添加自己的源：
+blog,https://blog.golang.org/feed.atom
