@@ -1,6 +1,6 @@
 # feeds-aggregator
 
-从 RSS 源列表文件（默认 `data/rss.txt`）并发抓取并解析，生成 `feeds.json`（默认 `data/feeds.json`）。支持作为 **GitHub Action** 在任意仓库中使用，并可通过市场发布。
+从 RSS 源列表文件（默认 `data/rss.txt` 或 `data/rss.opml`）并发抓取并解析，生成 `feeds.json`（默认 `data/feeds.json`）。支持 **.txt** 与 **.opml** 两种输入格式。会根据扩展名校验文件内容是否匹配（.opml 需为 OPML 格式，.txt 不能为 OPML）。支持作为 **GitHub Action** 在任意仓库中使用，并可通过市场发布。
 
 ## 功能
 
@@ -40,18 +40,18 @@ steps:
 
 ### Action 输入（inputs）
 
-| 输入 | 必填 | 默认值 | 说明 |
-|------|------|--------|------|
-| `sources` | 是 | `data/rss.txt` | 每行一个 RSS URL 的 txt 路径（相对仓库根） |
-| `output` | 是 | `data/feeds.json` | 输出的 feeds.json 路径（相对仓库根） |
-| `timezone` | 否 | `Asia/Shanghai` | IANA 时区，用于 `updated` 显示时间 |
-| `workers` | 否 | `8` | 并发抓取数 |
-| `logdir` | 否 | `logs` | 日志目录（相对仓库根），空则不打文件日志 |
-| `logretention` | 否 | `7` | 日志保留天数，超过的自动删除；0 表示不清理 |
-| `maxItemsPerFeed` | 否 | `0` | 每个 RSS 源最多取几条（0=不限制） |
-| `maxTotalItems` | 否 | `0` | 输出总条数上限（0=不限制） |
-| `dedup` | 否 | `true` | 是否按 link 去重 |
-| `requestTimeout` | 否 | `30s` | 单次 HTTP 请求超时（如 30s、1m） |
+| 输入                | 必填 | 默认值               | 说明                            |
+|-------------------|----|-------------------|-------------------------------|
+| `sources`         | 是  | `data/rss.txt`    | RSS 源列表路径：.txt 或 .opml（相对仓库根） |
+| `output`          | 是  | `data/feeds.json` | 输出的 feeds.json 路径（相对仓库根）      |
+| `timezone`        | 否  | `Asia/Shanghai`   | IANA 时区，用于 `updated` 显示时间     |
+| `workers`         | 否  | `8`               | 并发抓取数                         |
+| `logdir`          | 否  | `logs`            | 日志目录（相对仓库根），空则不打文件日志          |
+| `logretention`    | 否  | `7`               | 日志保留天数，超过的自动删除；0 表示不清理        |
+| `maxItemsPerFeed` | 否  | `0`               | 每个 RSS 源最多取几条（0=不限制）          |
+| `maxTotalItems`   | 否  | `0`               | 输出总条数上限（0=不限制）                |
+| `dedup`           | 否  | `true`            | 是否按 link 去重                   |
+| `requestTimeout`  | 否  | `10s`             | 单次 HTTP 请求超时（如 30s、1m）        |
 
 ### 发布到 Action 市场
 
@@ -70,6 +70,8 @@ steps:
 ```bash
 go mod tidy   # 可选，用于生成 go.sum
 go run . -sources=data/rss.txt -output=data/feeds.json
+# 或使用 OPML：
+go run . -sources=data/rss.opml -output=data/feeds.json
 ```
 
 或先编译再运行：
@@ -81,20 +83,22 @@ go build -o feeds-aggregator .
 
 ### 参数
 
-| 参数 | 默认值 | 说明 |
-|------|--------|------|
-| `-sources` | `data/rss.txt` | 存有 RSS 地址的 txt，每行一个 URL |
-| `-output` | `data/feeds.json` | 输出的 `feeds.json` 路径 |
-| `-workers` | `8` | 并发抓取数 |
-| `-timezone` | 空（本机时区） | IANA 时区，用于 `updated` 字段 |
-| `-logdir` | `logs` | 日志目录，文件名为 `feeds-2006-01-02.log`；空则不打文件日志 |
-| `-logretention` | `7` | 日志保留最近 N 天，超期自动删除；0 表示不清理 |
-| `-maxItemsPerFeed` | `0` | 每个 RSS 源最多取几条（0=不限制）；会先按时间排序再取最新 N 条 |
-| `-maxTotalItems` | `0` | 输出中最多保留总条数（0=不限制），在排序、去重之后截断 |
-| `-dedup` | `true` | 是否按 link 去重（保留首次出现即最新一条） |
-| `-requestTimeout` | `30s` | 单次 HTTP 请求超时（如 30s、1m） |
+| 参数                 | 默认值               | 说明                                        |
+|--------------------|-------------------|-------------------------------------------|
+| `-sources`         | `data/rss.txt`    | RSS 源列表：.txt（每行 URL 或「分类,URL」）或 .opml     |
+| `-output`          | `data/feeds.json` | 输出的 `feeds.json` 路径                       |
+| `-workers`         | `8`               | 并发抓取数                                     |
+| `-timezone`        | 空（本机时区）           | IANA 时区，用于 `updated` 字段                   |
+| `-logdir`          | `logs`            | 日志目录，文件名为 `feeds-2006-01-02.log`；空则不打文件日志 |
+| `-logretention`    | `7`               | 日志保留最近 N 天，超期自动删除；0 表示不清理                 |
+| `-maxItemsPerFeed` | `0`               | 每个 RSS 源最多取几条（0=不限制）；会先按时间排序再取最新 N 条      |
+| `-maxTotalItems`   | `0`               | 输出中最多保留总条数（0=不限制），在排序、去重之后截断              |
+| `-dedup`           | `true`            | 是否按 link 去重（保留首次出现即最新一条）                  |
+| `-requestTimeout`  | `10s`             | 单次 HTTP 请求超时（如 30s、1m）                    |
 
-## data/rss.txt 格式
+## 输入格式
+
+### .txt 格式（如 data/rss.txt）
 
 - **仅 URL**：一行只有一个地址时，该源下所有文章在 feeds.json 中**不带** `category` 字段（前端不显示分类）
 - **分类,URL**：行内第一个逗号前为分类，会写入每条文章的 `category`，便于前端分类展示
@@ -109,9 +113,25 @@ blog,https://another.com/atom.xml
 https://third.com/rss
 ```
 
+### .opml 格式（如 data/rss.opml）
+
+支持标准 OPML 2.0 订阅导出。从所有 `<outline xmlUrl="...">` 提取 RSS 地址；父级 `<outline text="...">` 的 `text` 作为 `category`。例如：
+
+```xml
+<opml><body>
+  <outline text="博客">
+    <outline text="某博客" xmlUrl="https://blog.example.com/feed.xml" type="rss"/>
+  </outline>
+</body></opml>
+```
+
+上述条目会以 `category="博客"` 写入 feeds.json。
+
+**校验规则**：程序会校验文件内容与扩展名是否匹配。`.opml` 文件内容需以 `<?xml` 或 `<opml` 开头；`.txt` 文件若内容为 OPML 格式，会提示改用 `.opml` 扩展名。
+
 ## 输出格式
 
-生成的 JSON 供博客邻居页使用。`published` 与 `updated` 均为 `YYYY-MM-DD HH:MM:SS`。每条 item 可含 `category`（来自 rss.txt 的「分类,URL」）。**avatar**：若 feed 未提供图片，则检查站点 `origin/favicon.ico` 是否存在；不存在则检查 `origin/favicon.svg`。两者都不存在则留空，由前端回退到默认图。
+生成的 JSON 供博客邻居页使用。`published` 与 `updated` 均为 `YYYY-MM-DD HH:MM:SS`。每条 item 可含 `category`（来自 rss.txt 的「分类,URL」）。**avatar**：若 feed 未提供图片，则检查站点 `origin/favicon.ico` 是否存在；不存在则检查 `origin/favicon.svg`；再不存在则抓取首页 HTML，解析 `link rel="icon"` 的 `href`；仍无则兜底使用 Google favicon 服务（`https://www.google.com/s2/favicons?domain=...`）。由前端回退到默认图仅在以上均不可用时。
 
 ```json
 {

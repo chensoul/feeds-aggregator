@@ -5,7 +5,9 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
+	"encoding/xml"
 	"flag"
 	"fmt"
 	"io"
@@ -14,10 +16,12 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"sync"
 	"time"
+	"unicode"
 
 	"github.com/mmcdole/gofeed"
 )
@@ -29,7 +33,7 @@ const (
 	maxRetries           = 3
 	initialBackoff       = time.Second
 	backoffMultiplier    = 2
-	defaultRequestTimeout = 30 * time.Second
+	defaultRequestTimeout = 60 * time.Second
 	defaultLogRetention  = 7
 	datetimeLayout       = "2006-01-02 15:04:05"
 	userAgent            = "FeedsAggregator/1.0 (+https://github.com/chensoul/feeds-aggregator)"
@@ -60,7 +64,7 @@ type Output struct {
 }
 
 func main() {
-	sourcesPath := flag.String("sources", "data/rss.txt", "Path to txt file with one RSS URL per line")
+	sourcesPath := flag.String("sources", "data/rss.txt", "Path to rss.txt (or .opml) with RSS URLs")
 	outputPath := flag.String("output", "data/feeds.json", "Path to output feeds.json")
 	workers := flag.Int("workers", defaultWorkers, "Concurrent fetch workers")
 	logDir := flag.String("logdir", "logs", "Directory for log files (daily log)")
@@ -69,7 +73,7 @@ func main() {
 	maxItemsPerFeed := flag.Int("maxItemsPerFeed", 0, "Max items to take per RSS source (0 = unlimited); when > 0, keeps latest entries only")
 	maxTotalItems := flag.Int("maxTotalItems", 0, "Max total items in output (0 = unlimited); applied after sort and dedup")
 	dedup := flag.Bool("dedup", true, "Deduplicate by link (keep newest)")
-	requestTimeoutStr := flag.String("requestTimeout", "30s", "HTTP request timeout per feed (e.g. 30s, 1m)")
+	requestTimeoutStr := flag.String("requestTimeout", "10s", "HTTP request timeout per feed (e.g. 30s, 1m)")
 	flag.Parse()
 
 	if d, err := time.ParseDuration(*requestTimeoutStr); err == nil && d > 0 {
@@ -95,7 +99,7 @@ func main() {
 		log.Fatalf("read sources: %v", err)
 	}
 	if len(sources) == 0 {
-		log.Fatalf("no RSS URLs in sources file %q: add one URL per line (or \"category,url\"), and ensure lines are not commented with # or empty", *sourcesPath)
+		log.Fatalf("no RSS URLs in sources file %q: use .txt (one URL per line or \"category,url\") or .opml", *sourcesPath)
 	}
 
 	start := time.Now()
@@ -289,9 +293,35 @@ var faviconClient = &http.Client{
 	},
 }
 
-// urlExists 对 url 发 HEAD，返回是否为 2xx。若服务器不支持 HEAD 则尝试 GET 并立即关闭 body。
-func urlExists(u string) bool {
-	req, err := http.NewRequest(http.MethodHead, u, nil)
+// isIcoContent 根据 Content-Type 或内容前几个字节判断是否为 ICO 格式。
+func isIcoContent(contentType string, head []byte) bool {
+	ct := strings.ToLower(contentType)
+	if strings.Contains(ct, "icon") || strings.Contains(ct, "x-ico") || ct == "image/ico" {
+		return true
+	}
+	// ICO 文件魔数：00 00 01 00
+	if len(head) >= 4 && head[0] == 0 && head[1] == 0 && head[2] == 1 && head[3] == 0 {
+		return true
+	}
+	return false
+}
+
+// isSvgContent 根据 Content-Type 或内容前几个字节判断是否为 SVG 格式。
+func isSvgContent(contentType string, head []byte) bool {
+	ct := strings.ToLower(contentType)
+	if strings.Contains(ct, "svg") {
+		return true
+	}
+	if len(head) >= 5 {
+		s := strings.ToLower(string(head[:min(32, len(head))]))
+		return strings.HasPrefix(s, "<?xml") || strings.HasPrefix(s, "<svg")
+	}
+	return false
+}
+
+// urlExistsWithType 检查 URL 是否可访问且返回内容为指定类型（ico 或 svg）。使用 GET 并校验 Content-Type 或内容。
+func urlExistsWithType(u string, isCorrectType func(contentType string, head []byte) bool) bool {
+	req, err := http.NewRequest(http.MethodGet, u, nil)
 	if err != nil {
 		return false
 	}
@@ -300,43 +330,134 @@ func urlExists(u string) bool {
 	if err != nil {
 		return false
 	}
+	head, _ := io.ReadAll(io.LimitReader(resp.Body, 64))
 	_ = resp.Body.Close()
-	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
-		return true
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return false
 	}
-	if resp.StatusCode == http.StatusMethodNotAllowed {
-		req.Method = http.MethodGet
-		resp2, err := faviconClient.Do(req)
-		if err != nil {
-			return false
-		}
-		_ = resp2.Body.Close()
-		return resp2.StatusCode >= 200 && resp2.StatusCode < 300
-	}
-	return false
+	contentType := resp.Header.Get("Content-Type")
+	return isCorrectType(contentType, head)
 }
 
-// resolveFavicon 返回 origin 下存在的 favicon URL：先试 favicon.ico，再试 favicon.svg；都不存在则返回空。
+// linkRelIconRegex 匹配 <link rel="icon" href="..."> 或 <link rel="shortcut icon" href="...">，href 可在 rel 前或后。
+var linkRelIconRegex = regexp.MustCompile(`(?i)<link[^>]*\srel=["'](?:shortcut\s+)?icon["'][^>]*\shref=["']([^"']+)["']|` +
+	`<link[^>]*\shref=["']([^"']+)["'][^>]*\srel=["'](?:shortcut\s+)?icon["']`)
+
+// resolveFaviconFromHTML 抓取 origin 首页 HTML，解析 link rel="icon" 的 href，
+// 并验证解析出的 URL 是否存在（检查内容是否为 ico 或 svg），返回有效的绝对 URL；失败返回空。
+func resolveFaviconFromHTML(origin string) string {
+	req, err := http.NewRequest(http.MethodGet, origin+"/", nil)
+	if err != nil {
+		return ""
+	}
+	req.Header.Set("User-Agent", userAgent)
+	resp, err := faviconClient.Do(req)
+	if err != nil {
+		return ""
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return ""
+	}
+	body, err := io.ReadAll(io.LimitReader(resp.Body, 64*1024))
+	if err != nil {
+		return ""
+	}
+	base, err := url.Parse(origin + "/")
+	if err != nil {
+		return ""
+	}
+	for _, sub := range linkRelIconRegex.FindAllSubmatch(body, -1) {
+		href := ""
+		if len(sub[1]) > 0 {
+			href = string(sub[1])
+		} else if len(sub[2]) > 0 {
+			href = string(sub[2])
+		}
+		href = strings.TrimSpace(href)
+		if href == "" {
+			continue
+		}
+		u, err := base.Parse(href)
+		if err != nil {
+			continue
+		}
+		if u.Scheme != "" && u.Host != "" {
+			// 验证解析出的 URL 是否存在且返回 ico 或 svg 内容
+			if urlExistsWithType(u.String(), func(ct string, head []byte) bool {
+				return isIcoContent(ct, head) || isSvgContent(ct, head)
+			}) {
+				return u.String()
+			}
+		}
+	}
+	return ""
+}
+
+// googleFaviconURL 从 origin 生成 Google favicon 服务 URL，作为兜底。
+func googleFaviconURL(origin string) string {
+	u, err := url.Parse(origin)
+	if err != nil || u.Host == "" {
+		return ""
+	}
+	domain := u.Hostname()
+	if domain == "" {
+		return ""
+	}
+	return "https://www.google.com/s2/favicons?domain=" + url.QueryEscape(domain) + "&sz=64"
+}
+
+// resolveFavicon 返回 origin 下存在的 favicon URL：先试 favicon.ico，再试 favicon.svg；
+// 都不存在则抓取首页解析 link rel="icon" 的 href（并验证 URL 是否存在）；
+// 仍无则兜底使用 Google favicon 服务。
 func resolveFavicon(origin string) string {
 	origin = strings.TrimSuffix(origin, "/")
 	if origin == "" {
 		return ""
 	}
-	if urlExists(origin + "/favicon.ico") {
+	if urlExistsWithType(origin+"/favicon.ico", isIcoContent) {
 		return origin + "/favicon.ico"
 	}
-	if urlExists(origin + "/favicon.svg") {
+	if urlExistsWithType(origin+"/favicon.svg", isSvgContent) {
 		return origin + "/favicon.svg"
 	}
-	return ""
+	if u := resolveFaviconFromHTML(origin); u != "" {
+		return u
+	}
+	return googleFaviconURL(origin)
 }
 
-// readSources 读取 rss.txt：每行一个 URL，或 "分类,URL"（逗号前为分类，会写入 feeds.json 的 category）
+// looksLikeOPML 根据内容前若干字符判断是否为 OPML（XML 格式）。
+func looksLikeOPML(data []byte) bool {
+	s := strings.TrimSpace(strings.ToLower(string(data)))
+	if len(s) > 256 {
+		s = s[:256]
+	}
+	return strings.HasPrefix(s, "<?xml") || strings.HasPrefix(s, "<opml")
+}
+
+// readSources 根据文件扩展名读取源：.opml 解析 OPML，否则按 rss.txt 格式（每行 URL 或 "分类,URL"）。
+// 会校验文件内容与扩展名是否匹配。
 func readSources(path string) ([]sourceEntry, error) {
 	b, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
+	isOPML := strings.HasSuffix(strings.ToLower(path), ".opml")
+	if isOPML {
+		if !looksLikeOPML(b) {
+			return nil, fmt.Errorf("file %q has .opml extension but content does not appear to be OPML (expected <?xml or <opml)", path)
+		}
+		return parseSourcesOPML(b, path)
+	}
+	if looksLikeOPML(b) {
+		return nil, fmt.Errorf("file %q has non-.opml extension but content appears to be OPML - use .opml extension", path)
+	}
+	return parseSourcesTxt(b)
+}
+
+// parseSourcesTxt 解析 txt 格式内容：每行一个 URL，或 "分类,URL"（逗号前为分类，会写入 feeds.json 的 category）。
+func parseSourcesTxt(b []byte) ([]sourceEntry, error) {
 	var out []sourceEntry
 	for _, line := range strings.Split(string(b), "\n") {
 		line = strings.TrimSpace(line)
@@ -358,9 +479,56 @@ func readSources(path string) ([]sourceEntry, error) {
 	return out, nil
 }
 
-func newParser() *gofeed.Parser {
-	p := gofeed.NewParser()
-	p.Client = &http.Client{
+// parseSourcesOPML 解析 OPML 内容，提取所有含 xmlUrl 的 outline；父级 outline 的 text 作为 category。
+func parseSourcesOPML(b []byte, path string) ([]sourceEntry, error) {
+	var doc opmlDoc
+	if err := xml.Unmarshal(b, &doc); err != nil {
+		return nil, fmt.Errorf("parse OPML %q: %w", path, err)
+	}
+	var out []sourceEntry
+	var collect func(outlines []opmlOutline, category string)
+	collect = func(outlines []opmlOutline, category string) {
+		for _, o := range outlines {
+			xmlUrl := strings.TrimSpace(o.XMLURL)
+			if xmlUrl != "" {
+				out = append(out, sourceEntry{Category: strings.TrimSpace(category), URL: xmlUrl})
+			}
+			if len(o.Outlines) > 0 {
+				parentCat := strings.TrimSpace(o.Text)
+				if parentCat == "" {
+					parentCat = category
+				}
+				collect(o.Outlines, parentCat)
+			}
+		}
+	}
+	collect(doc.Body.Outlines, "")
+	return out, nil
+}
+
+// opmlOutline 用于解析 OPML 的 outline 元素。
+type opmlOutline struct {
+	XMLName xml.Name     `xml:"outline"`
+	Text    string       `xml:"text,attr"`
+	XMLURL  string       `xml:"xmlUrl,attr"`
+	Type    string       `xml:"type,attr"`
+	Outlines []opmlOutline `xml:"outline"`
+}
+
+// opmlBody 用于解析 OPML 的 body。
+type opmlBody struct {
+	Outlines []opmlOutline `xml:"outline"`
+}
+
+// opmlDoc 用于解析 OPML 根元素。
+type opmlDoc struct {
+	XMLName xml.Name `xml:"opml"`
+	Body    opmlBody `xml:"body"`
+}
+
+
+func newFeedClient() *http.Client {
+	return &http.Client{
 		Timeout: requestTimeout,
 		Transport: &http.Transport{
 			MaxIdleConns:        10,
@@ -368,21 +536,69 @@ func newParser() *gofeed.Parser {
 			DisableCompression:  false,
 		},
 	}
+}
+
+func newParser() *gofeed.Parser {
+	p := gofeed.NewParser()
 	p.UserAgent = userAgent
 	return p
+}
+
+// sanitizeXMLBytes 移除 XML 1.0 不允许的控制字符（U+0000–U+001F 除 0x09/0x0A/0x0D），修复如 tech.youzan.com 的 illegal character U+0008 错误。
+func sanitizeXMLBytes(b []byte) []byte {
+	return bytes.Map(func(r rune) rune {
+		if r == 0x09 || r == 0x0A || r == 0x0D {
+			return r
+		}
+		if r >= 0x00 && r <= 0x1F || r == 0x7F {
+			return -1 // 丢弃
+		}
+		if unicode.Is(unicode.Cc, r) {
+			return -1
+		}
+		return r
+	}, b)
 }
 
 func fetchWithBackoff(feedURL string) (*gofeed.Feed, error) {
 	var lastErr error
 	backoff := initialBackoff
+	parser := newParser()
 	for attempt := 0; attempt < maxRetries; attempt++ {
 		if attempt > 0 {
 			log.Printf("retry %d/%d for %s after %v", attempt, maxRetries-1, feedURL, backoff)
 			time.Sleep(backoff)
 			backoff *= backoffMultiplier
 		}
-		parser := newParser()
-		feed, err := parser.ParseURL(feedURL)
+		req, err := http.NewRequest(http.MethodGet, feedURL, nil)
+		if err != nil {
+			lastErr = err
+			continue
+		}
+		req.Header.Set("User-Agent", userAgent)
+		req.Header.Set("Accept", "application/rss+xml, application/atom+xml, application/xml, text/xml, */*")
+		resp, err := newFeedClient().Do(req)
+		if err != nil {
+			lastErr = err
+			continue
+		}
+		body, err := io.ReadAll(resp.Body)
+		_ = resp.Body.Close()
+		if err != nil {
+			lastErr = err
+			continue
+		}
+		if resp.StatusCode == http.StatusTooManyRequests {
+			backoff = 5 * time.Second
+			lastErr = fmt.Errorf("http error: 429 Too Many Requests")
+			continue
+		}
+		if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+			lastErr = fmt.Errorf("http error: %d %s", resp.StatusCode, resp.Status)
+			continue
+		}
+		body = sanitizeXMLBytes(body)
+		feed, err := parser.Parse(bytes.NewReader(body))
 		if err == nil {
 			return feed, nil
 		}
@@ -418,8 +634,8 @@ func fetchAndParse(feedURL string, category string, maxItemsPerFeed int) ([]Feed
 	}
 
 	entries := feed.Items
-		if maxItemsPerFeed > 0 && len(entries) > 0 {
-			sort.Slice(entries, func(i, j int) bool {
+	if maxItemsPerFeed > 0 && len(entries) > 0 {
+		sort.Slice(entries, func(i, j int) bool {
 				ti, tj := entries[i].PublishedParsed, entries[j].PublishedParsed
 				if ti == nil {
 					ti = entries[i].UpdatedParsed

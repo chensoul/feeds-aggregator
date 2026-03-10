@@ -48,7 +48,7 @@ inputs:
   requestTimeout:
     description: "HTTP request timeout per feed (e.g. 30s, 1m)"
     required: false
-    default: "30s"
+    default: "10s"
 
 outputs:
   output-path:

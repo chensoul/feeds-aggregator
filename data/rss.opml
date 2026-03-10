@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<opml version="2.0">
+    <head>
+        <dateCreated>2026-03-10T07:44:57.316Z</dateCreated>
+        <title>Follow</title>
+    </head>
+    <body>
+        <outline text="小宇宙">
+            <outline text="罗永浩的十字路口"
+                     xmlUrl="https://rsshub.chensoul.cc/xiaoyuzhou/podcast/68981df29e7bcd326eb91d88"
+                     htmlUrl="https://www.xiaoyuzhoufm.com/podcast/68981df29e7bcd326eb91d88" type="rss"></outline>
+            <outline text="半拿铁 | 商业沉浮录"
+                     xmlUrl="https://rsshub.chensoul.cc/xiaoyuzhou/podcast/62382c1103bea1ebfffa1c00"
+                     htmlUrl="https://www.xiaoyuzhoufm.com/podcast/62382c1103bea1ebfffa1c00" type="rss"></outline>
+            <outline text="知行小酒馆" title="知行小酒馆"
+                     xmlUrl="https://rsshub.chensoul.cc/xiaoyuzhou/podcast/6013f9f58e2f7ee375cf4216"
+                     htmlUrl="https://www.xiaoyuzhoufm.com/podcast/6013f9f58e2f7ee375cf4216" type="rss"></outline>
+            <outline text="纵横四海" title="纵横四海"
+                     xmlUrl="https://rsshub.chensoul.cc/xiaoyuzhou/podcast/62694abdb221dd5908417d1e"
+                     htmlUrl="https://www.xiaoyuzhoufm.com/podcast/62694abdb221dd5908417d1e" type="rss"></outline>
+            <outline text="无人知晓" title="无人知晓"
+                     xmlUrl="https://rsshub.chensoul.cc/xiaoyuzhou/podcast/611719d3cb0b82e1df0ad29e"
+                     htmlUrl="https://www.xiaoyuzhoufm.com/podcast/611719d3cb0b82e1df0ad29e" type="rss"></outline>
+            <outline text="面基" title="面基"
+                     xmlUrl="https://rsshub.chensoul.cc/xiaoyuzhou/podcast/6388760f22567e8ea6ad070f"
+                     htmlUrl="https://www.xiaoyuzhoufm.com/podcast/6388760f22567e8ea6ad070f" type="rss"></outline>
+        </outline>
+        <outline text="博客">
+            <outline text="Callista Enterprise" title="Callista Enterprise"
+                     xmlUrl="https://callistaenterprise.se/feed.xml" htmlUrl="https://callistaenterprise.se/"
+                     type="rss"></outline>
+            <outline text="ByteByteGo" title="ByteByteGo" xmlUrl="https://blog.bytebytego.com/feed"
+                     htmlUrl="https://blog.bytebytego.com/" type="rss"></outline>
+            <outline text="JoshLong.com" title="JoshLong.com" xmlUrl="https://api.joshlong.com/feed.xml"
+                     htmlUrl="https://joshlong.com/" type="rss"></outline>
+            <outline text="让小产品的独立变现更简单" title="让小产品的独立变现更简单"
+                     xmlUrl="https://www.ezindie.com/feed/rss.xml" htmlUrl="http://github.com/dylang/node-rss"
+                     type="rss"></outline>
+            <outline text="阮一峰的网络日志" title="阮一峰的网络日志" xmlUrl="https://feeds.feedburner.com/ruanyifeng"
+                     htmlUrl="http://www.ruanyifeng.com/blog/" type="rss"></outline>
+            <outline text="pseudoyu" title="pseudoyu" xmlUrl="https://www.pseudoyu.com/zh/index.xml"
+                     htmlUrl="https://www.pseudoyu.com/" type="rss"></outline>
+            <outline text="1 Byte" title="1 Byte" xmlUrl="https://1byte.io/articles/index.xml"
+                     htmlUrl="https://1byte.io/articles/" type="rss"></outline>
+            <outline text="程序员的喵" title="程序员的喵" xmlUrl="https://catcoding.me/atom.xml"
+                     htmlUrl="http://catcoding.me/atom.xml" type="rss"></outline>
+            <outline text="有赞技术团队" title="有赞技术团队" xmlUrl="https://tech.youzan.com/rss/"
+                     htmlUrl="https://tech.youzan.com/" type="rss"></outline>
+            <outline text="苏洋博客" title="苏洋博客" xmlUrl="https://soulteary.com/feed/"
+                     htmlUrl="https://soulteary.com/feed/" type="rss"></outline>
+            <outline text="乱世浮生" title="乱世浮生" xmlUrl="https://atbug.com/index.xml" htmlUrl="https://atbug.com/"
+                     type="rss"></outline>
+            <outline text="Zalando Engineering Blog" title="Zalando Engineering Blog"
+                     xmlUrl="https://engineering.zalando.com/atom.xml" htmlUrl="https://engineering.zalando.com/"
+                     type="rss"></outline>
+            <outline text="Vlad Mihalcea&apos;s Blog" title="Vlad Mihalcea&apos;s Blog"
+                     xmlUrl="https://vladmihalcea.com/feed/" htmlUrl="https://vladmihalcea.com/" type="rss"></outline>
+            <outline text="七猫技术团队" title="七猫技术团队" xmlUrl="https://tech.qimao.com/rss/"
+                     htmlUrl="https://tech.qimao.com/" type="rss"></outline>
+            <outline text="SivaLabs" title="SivaLabs" xmlUrl="https://www.sivalabs.in/index.xml"
+                     htmlUrl="https://www.sivalabs.in/" type="rss"></outline>
+            <outline text="Code With Arho" title="Code With Arho" xmlUrl="https://www.arhohuttunen.com/index.xml"
+                     htmlUrl="https://www.arhohuttunen.com/" type="rss"></outline>
+            <outline text="Dan Vega" title="Dan Vega" xmlUrl="https://www.danvega.dev/rss.xml"
+                     htmlUrl="https://www.danvega.dev/" type="rss"></outline>
+            <outline text="Huong Dan Java" title="Huong Dan Java" xmlUrl="https://huongdanjava.com/feed"
+                     htmlUrl="https://huongdanjava.com/" type="rss"></outline>
+            <outline text="JTechLog - Viczián István blogja" title="JTechLog - Viczián István blogja"
+                     xmlUrl="https://feeds.feedburner.com/JTechLog" htmlUrl="http://www.jtechlog.hu/"
+                     type="rss"></outline>
+            <outline text="AI洞察日报 RSS Feed" title="AI洞察日报 RSS Feed"
+                     xmlUrl="https://justlovemaki.github.io/CloudFlare-AI-Insight-Daily/rss.xml"
+                     htmlUrl="https://ai.hubtoday.app/" type="rss"></outline>
+            <outline text="Piotr&apos;s TechBlog" title="Piotr&apos;s TechBlog"
+                     xmlUrl="https://piotrminkowski.com/feed/" htmlUrl="https://piotrminkowski.com/"
+                     type="rss"></outline>
+            <outline text="AlgoMaster Newsletter" title="AlgoMaster Newsletter" xmlUrl="https://blog.algomaster.io/feed"
+                     htmlUrl="https://blog.algomaster.io/" type="rss"></outline>
+            <outline text="Blogs on SivaLabs" title="Blogs on SivaLabs" xmlUrl="https://www.sivalabs.in/blog/index.xml"
+                     htmlUrl="https://www.sivalabs.in/blog/" type="rss"></outline>
+            <outline text="拾月" title="拾月" xmlUrl="https://www.skyue.com/feed/" htmlUrl="https://www.skyue.com/"
+                     type="rss"></outline>
+            <outline text="Verne in GitHub" title="Verne in GitHub" xmlUrl="https://blog.einverne.info/rss.xml"
+                     htmlUrl="https://blog.einverne.info/" type="rss"></outline>
+            <outline text="Frost&apos;s Blog" title="Frost&apos;s Blog" xmlUrl="https://frostming.com/feed.xml"
+                     htmlUrl="https://frostming.com/" type="rss"></outline>
+        </outline>
+        <outline text="Twitter @熠辉 Indie" title="Twitter @熠辉 Indie"
+                 xmlUrl="https://rsshub.chensoul.cc/twitter/user/yihui_indie" htmlUrl="https://x.com/yihui_indie"
+                 type="rss"></outline>
+        <outline text="Twitter @宝玉" title="Twitter @宝玉" xmlUrl="https://rsshub.chensoul.cc/twitter/user/dotey"
+                 htmlUrl="https://x.com/dotey" type="rss"></outline>
+        <outline text="youtube">
+            <outline text="Simon Grimm - YouTube" title="Simon Grimm - YouTube"
+                     xmlUrl="https://rsshub.chensoul.cc/youtube/user/%40galaxies_dev"
+                     htmlUrl="https://www.youtube.com/@galaxies_dev" type="rss"></outline>
+            <outline text="zenyarn - YouTube" title="zenyarn - YouTube"
+                     xmlUrl="https://rsshub.chensoul.cc/youtube/user/%40zenyarnliu"
+                     htmlUrl="https://www.youtube.com/channel/UCaLdf-s5VRoOqRrlzunOlAQ" type="rss"></outline>
+            <outline text="Dave Ebbelaar - YouTube" title="Dave Ebbelaar - YouTube"
+                     xmlUrl="https://rsshub.chensoul.cc/youtube/user/@daveebbelaar"
+                     htmlUrl="https://www.youtube.com/@daveebbelaar" type="rss"></outline>
+            <outline text="SpringDeveloper - YouTube" title="SpringDeveloper - YouTube"
+                     xmlUrl="https://rsshub.chensoul.cc/youtube/user/%40SpringSourceDev"
+                     htmlUrl="https://www.youtube.com/@SpringSourceDev" type="rss"></outline>
+            <outline text="Programming Techie" title="Programming Techie"
+                     xmlUrl="https://rsshub.chensoul.cc/youtube/channel/UCD20RZV_WHQImisCW2QZwDw"
+                     htmlUrl="https://www.youtube.com/channel/UCD20RZV_WHQImisCW2QZwDw" type="rss"></outline>
+            <outline text="Sudarshan Shah" title="Sudarshan Shah"
+                     xmlUrl="https://rsshub.chensoul.cc/youtube/channel/UCAx0uQfy4yQQxcObJk7fx0w"
+                     htmlUrl="https://www.youtube.com/channel/UCAx0uQfy4yQQxcObJk7fx0w" type="rss"></outline>
+            <outline text="Amol kumar" title="Amol kumar"
+                     xmlUrl="https://rsshub.chensoul.cc/youtube/channel/UCR-HAftSWckNnGTqVJnKXHg"
+                     htmlUrl="https://www.youtube.com/channel/UCR-HAftSWckNnGTqVJnKXHg" type="rss"></outline>
+            <outline text="aiwithbrandon - YouTube" title="aiwithbrandon - YouTube"
+                     xmlUrl="https://rsshub.chensoul.cc/youtube/user/%40aiwithbrandon"
+                     htmlUrl="https://www.youtube.com/channel/UCEzrs7gK6Nf6t_tadEprzxQ" type="rss"></outline>
+            <outline text="Smoljames - YouTube" title="Smoljames - YouTube"
+                     xmlUrl="https://rsshub.chensoul.cc/youtube/user/%40Smoljames"
+                     htmlUrl="https://www.youtube.com/@Smoljames" type="rss"></outline>
+            <outline text="Dan Vega" title="Dan Vega"
+                     xmlUrl="https://rsshub.chensoul.cc/youtube/channel/UCc98QQw1D-y38wg6mO3w4MQ"
+                     htmlUrl="https://www.youtube.com/channel/UCc98QQw1D-y38wg6mO3w4MQ" type="rss"></outline>
+            <outline text="Web Prodigies - YouTube" title="Web Prodigies - YouTube"
+                     xmlUrl="https://rsshub.chensoul.cc/youtube/user/%40webprodigies"
+                     htmlUrl="https://www.youtube.com/channel/UCiyVfd7aZk8h69H9VyJ70yg" type="rss"></outline>
+            <outline text="Ali Bouali" title="Ali Bouali"
+                     xmlUrl="https://rsshub.chensoul.cc/youtube/channel/UC_mRM-418WkU2SgpvNG3jKA"
+                     htmlUrl="https://www.youtube.com/channel/UC_mRM-418WkU2SgpvNG3jKA" type="rss"></outline>
+            <outline text="Devoxx" title="Devoxx"
+                     xmlUrl="https://rsshub.chensoul.cc/youtube/channel/UCCBVCTuk6uJrN3iFV_3vurg"
+                     htmlUrl="https://www.youtube.com/channel/UCCBVCTuk6uJrN3iFV_3vurg" type="rss"></outline>
+            <outline text="Cole Medin - YouTube" title="Cole Medin - YouTube"
+                     xmlUrl="https://rsshub.chensoul.cc/youtube/user/%40ColeMedin"
+                     htmlUrl="https://www.youtube.com/channel/UCMwVTLZIRRUyyVrkjDpn4pA" type="rss"></outline>
+            <outline text="Harkirat Singh - YouTube" title="Harkirat Singh - YouTube"
+                     xmlUrl="https://rsshub.chensoul.cc/youtube/channel/UCWX0cUR2rZcqKei1Vstww-A"
+                     htmlUrl="https://www.youtube.com/channel/UCWX0cUR2rZcqKei1Vstww-A" type="rss"></outline>
+            <outline text="TechWithEmma - YouTube" title="TechWithEmma - YouTube"
+                     xmlUrl="https://rsshub.chensoul.cc/youtube/user/%40techwithemmaofficial"
+                     htmlUrl="https://www.youtube.com/@techwithemmaofficial" type="rss"></outline>
+            <outline text="Andreas Trolle - YouTube" title="Andreas Trolle - YouTube"
+                     xmlUrl="https://rsshub.chensoul.cc/youtube/user/%40andreastrolle"
+                     htmlUrl="https://www.youtube.com/@andreastrolle" type="rss"></outline>
+            <outline text="TubeGuruji - YouTube" title="TubeGuruji - YouTube"
+                     xmlUrl="https://rsshub.chensoul.cc/youtube/user/%40tubeguruji"
+                     htmlUrl="https://www.youtube.com/@tubeguruji" type="rss"></outline>
+            <outline text="Code with Ania Kubów - YouTube" title="Code with Ania Kubów - YouTube"
+                     xmlUrl="https://rsshub.chensoul.cc/youtube/user/%40aniakubow"
+                     htmlUrl="https://www.youtube.com/channel/UC5DNytAJ6_FISueUfzZCVsw" type="rss"></outline>
+            <outline text="Sonny Sangha - YouTube" title="Sonny Sangha - YouTube"
+                     xmlUrl="https://rsshub.chensoul.cc/youtube/user/%40SonnySangha"
+                     htmlUrl="https://www.youtube.com/@SonnySangha" type="rss"></outline>
+            <outline text="Code With Antonio - YouTube" title="Code With Antonio - YouTube"
+                     xmlUrl="https://rsshub.chensoul.cc/youtube/user/%40codewithantonio"
+                     htmlUrl="https://www.youtube.com/@codewithantonio" type="rss"></outline>
+            <outline text="webdecoded - YouTube" title="webdecoded - YouTube"
+                     xmlUrl="https://rsshub.chensoul.cc/youtube/user/%40webdecoded"
+                     htmlUrl="https://www.youtube.com/channel/UCObrjoZZJSjznfCO5Vx9qUQ" type="rss"></outline>
+            <outline text="SivaLabs" title="SivaLabs"
+                     xmlUrl="https://rsshub.chensoul.cc/youtube/channel/UC7yMHBNLA1AnVfy_beGJGqg"
+                     htmlUrl="https://www.youtube.com/channel/UC7yMHBNLA1AnVfy_beGJGqg" type="rss"></outline>
+            <outline text="Telusko" title="Telusko"
+                     xmlUrl="https://rsshub.chensoul.cc/youtube/channel/UC59K-uG2A5ogwIrHw4bmlEg"
+                     htmlUrl="https://www.youtube.com/channel/UC59K-uG2A5ogwIrHw4bmlEg" type="rss"></outline>
+            <outline text="Philip Riecks" title="Philip Riecks"
+                     xmlUrl="https://rsshub.chensoul.cc/youtube/channel/UCEbZTcePN9QwMr1Lr1SED0Q"
+                     htmlUrl="https://www.youtube.com/channel/UCEbZTcePN9QwMr1Lr1SED0Q" type="rss"></outline>
+            <outline text="EmbarkX | Learn Programming" title="EmbarkX | Learn Programming"
+                     xmlUrl="https://rsshub.chensoul.cc/youtube/channel/UCH_Wi8MidUKGlQvep9T7t4g"
+                     htmlUrl="https://www.youtube.com/channel/UCH_Wi8MidUKGlQvep9T7t4g" type="rss"></outline>
+        </outline>
+        <outline text="Twitter @硅谷王川 Chuan" title="Twitter @硅谷王川 Chuan"
+                 xmlUrl="https://rsshub.chensoul.cc/twitter/user/Svwang1" htmlUrl="https://x.com/Svwang1"
+                 type="rss"></outline>
+        <outline text="B 站">
+            <outline text="技术爬爬虾 的 bilibili 空间" title="技术爬爬虾 的 bilibili 空间"
+                     xmlUrl="https://rsshub.chensoul.cc/bilibili/user/video/316183842"
+                     htmlUrl="https://space.bilibili.com/316183842" type="rss"></outline>
+            <outline text="吕立青_JimmyLv 的 bilibili 空间" title="吕立青_JimmyLv 的 bilibili 空间"
+                     xmlUrl="https://rsshub.chensoul.cc/bilibili/user/video/37648256"
+                     htmlUrl="https://space.bilibili.com/37648256" type="rss"></outline>
+            <outline text="黄益贺 的 bilibili 空间" title="黄益贺 的 bilibili 空间"
+                     xmlUrl="https://rsshub.chensoul.cc/bilibili/user/video/322961825"
+                     htmlUrl="https://space.bilibili.com/322961825" type="rss"></outline>
+        </outline>
+        <outline text="Twitter @Tw93" title="Twitter @Tw93" xmlUrl="https://rsshub.chensoul.cc/twitter/user/HiTw93"
+                 htmlUrl="https://x.com/HiTw93" type="rss"></outline>
+    </body>
+</opml>
