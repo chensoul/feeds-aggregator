@@ -6,6 +6,8 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"encoding/xml"
 	"flag"
@@ -74,8 +76,8 @@ func main() {
 	maxTotalItems := flag.Int("maxTotalItems", 0, "Max total items in output (0 = unlimited); applied after sort and dedup")
 	maxDays := flag.Int("maxDays", 365, "Only keep items from the last N days (0 = no limit)")
 	dedup := flag.Bool("dedup", true, "Deduplicate by link (keep newest)")
-	faviconDir := flag.String("faviconDir", "", "Download favicons to this directory (e.g. public/favicon); filename {domain}.{ext}. Empty = use remote URL.")
-	faviconPathPrefix := flag.String("faviconPathPrefix", "", "Path prefix for avatar in JSON (e.g. favicon). avatar = faviconPathPrefix + \"/\" + domain + ext. Empty = use faviconDir when set.")
+	faviconDir := flag.String("faviconDir", "", "Download favicons to this directory (e.g. public/favicon); filename = {domain}_{hash(avatarURL)}.{ext} so each feed/channel has its own file (e.g. YouTube, Bilibili). Empty = use remote URL.")
+	faviconPathPrefix := flag.String("faviconPathPrefix", "", "Path prefix for avatar in JSON (e.g. favicon). avatar = faviconPathPrefix + \"/\" + filename. Empty = use faviconDir when set.")
 	requestTimeoutStr := flag.String("requestTimeout", "10s", "HTTP request timeout per feed (e.g. 30s, 1m)")
 	flag.Parse()
 
@@ -447,7 +449,13 @@ func extFromFaviconURL(raw string) string {
 	return ".ico"
 }
 
-// resolveAvatarToLocal 在 faviconDir 下保存 favicon，文件名为 {域名}.{原始后缀}；若已存在则跳过下载。返回用于 JSON 的路径：avatar = faviconPathPrefix + "/" + domain + ext。
+// avatarURLHash 对 avatar URL 做 SHA256 取前 16 位十六进制作为文件名，同一 URL 同文件，不同频道/用户（如 YouTube、B站）不同 URL 则不同文件。
+func avatarURLHash(avatarURL string) string {
+	h := sha256.Sum256([]byte(avatarURL))
+	return hex.EncodeToString(h[:8])
+}
+
+// resolveAvatarToLocal 在 faviconDir 下保存 favicon，文件名为 {domain}_{hash(avatarURL)}.{原始后缀}，同一头像 URL 对应同一文件（多用户/频道站点如 YouTube、B站每用户 URL 不同故不冲突）；若已存在则跳过下载。返回 avatar = faviconPathPrefix + "/" + name。
 func resolveAvatarToLocal(avatarURL string, origin string, faviconDir string, faviconPathPrefix string) string {
 	if faviconDir == "" || faviconPathPrefix == "" || avatarURL == "" {
 		return avatarURL
@@ -456,12 +464,15 @@ func resolveAvatarToLocal(avatarURL string, origin string, faviconDir string, fa
 	if domain == "" {
 		domain = domainFromURL(avatarURL)
 	}
-	if domain == "" {
-		return avatarURL
-	}
 	ext := extFromFaviconURL(avatarURL)
-	absPath := filepath.Join(faviconDir, domain+ext)
-	relativePath := faviconPathPrefix + "/" + domain + ext
+	hashPart := avatarURLHash(avatarURL)
+	name := hashPart + ext
+	if domain != "" {
+		domainForFile := strings.ReplaceAll(domain, ".", "_")
+		name = domainForFile + "_" + hashPart + ext
+	}
+	absPath := filepath.Join(faviconDir, name)
+	relativePath := faviconPathPrefix + "/" + name
 	if _, err := os.Stat(absPath); err == nil {
 		return relativePath
 	}

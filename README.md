@@ -15,7 +15,7 @@
 - **总条数上限**：`-maxTotalItems`（默认 0=不限制），在排序、去重后截断，控制最终 JSON 大小
 - **抓取最近 N 天**：`-maxDays`（默认 365），只保留发布时间在最近 N 天内的条目；0 表示不按天数限制
 - **按 link 去重**：`-dedup`（默认 true），同一链接只保留一条（保留最新），避免多源重复
-- **Favicon 本地化**：`-faviconDir` 为写入目录（如 `public/favicon`），`-faviconPathPrefix` 为 JSON 中 avatar 的前缀（如 `favicon`），规则为 `avatar = faviconPathPrefix + "/" + domain + ext`；未设 `faviconPathPrefix` 时默认用 `faviconDir`；已存在文件则跳过下载
+- **Favicon 本地化**：`-faviconDir` 为写入目录（如 `public/favicon`），`-faviconPathPrefix` 为 JSON 中 avatar 的前缀；文件名为 `{domain}_{hash(avatarURL)}.{原始后缀}`，同一头像 URL 对应同一文件，不同频道/用户（如 YouTube、B站）因 URL 不同而各有一份；`avatar = faviconPathPrefix + "/" + filename`；已存在则跳过下载
 - **请求超时**：`-requestTimeout`（默认 30s），可设为 1m 等
 - **运行统计**：结束时输出成功/失败源数、总条数、输出路径与耗时
 - **输出方式**：每次运行**覆盖**写入 `output` 指定文件，不追加
@@ -55,7 +55,7 @@ steps:
 | `maxDays`         | 否  | `365`             | 只保留最近 N 天的条目（0=不限制）           |
 | `dedup`           | 否  | `true`            | 是否按 link 去重                   |
 | `faviconDir`        | 否  | 空                | 将 favicon 下载到此目录（相对工作区）；空则使用远程 URL     |
-| `faviconPathPrefix` | 否  | 空（同 faviconDir） | JSON 中 avatar 路径前缀，avatar = faviconPathPrefix + "/" + domain + ext |
+| `faviconPathPrefix` | 否  | 空（同 faviconDir） | JSON 中 avatar 路径前缀，avatar = faviconPathPrefix + "/" + filename（filename = domain_hash.ext） |
 | `requestTimeout`    | 否  | `10s`             | 单次 HTTP 请求超时（如 30s、1m）          |
 
 ### 发布到 Action 市场
@@ -100,8 +100,8 @@ go build -o feeds-aggregator .
 | `-maxTotalItems`   | `0`               | 输出中最多保留总条数（0=不限制），在排序、去重之后截断              |
 | `-maxDays`         | `365`             | 只保留最近 N 天内的条目（0=不限制）                        |
 | `-dedup`           | `true`            | 是否按 link 去重（保留首次出现即最新一条）                  |
-| `-faviconDir`        | 空                | 将 favicon 下载到该目录（如 public/favicon），文件名为 `{域名}.{原始后缀}`；已存在则跳过 |
-| `-faviconPathPrefix` | 空（同 faviconDir） | JSON 中 avatar 前缀，avatar = faviconPathPrefix + "/" + domain + ext（如 favicon）   |
+| `-faviconDir`        | 空                | 将 favicon 下载到该目录（如 public/favicon），文件名为 `{domain}_{hash}.{后缀}`，同一 URL 同文件、多用户/频道（如 YouTube、B站）不冲突；已存在则跳过 |
+| `-faviconPathPrefix` | 空（同 faviconDir） | JSON 中 avatar 前缀，avatar = faviconPathPrefix + "/" + filename   |
 | `-requestTimeout`    | `10s`             | 单次 HTTP 请求超时（如 30s、1m）                        |
 
 ## 输入格式
@@ -139,7 +139,7 @@ https://third.com/rss
 
 ## 输出格式
 
-生成的 JSON 供博客邻居页使用。`published` 与 `updated` 均为 `YYYY-MM-DD HH:MM:SS`。每条 item 可含 `category`（来自 rss.txt 的「分类,URL」）。**avatar**：若 feed 未提供图片，则检查站点 `origin/favicon.ico` 是否存在；不存在则检查 `origin/favicon.svg`；再不存在则抓取首页 HTML，解析 `link rel="icon"` 的 `href`；仍无则兜底使用 Google favicon 服务。当指定 `-faviconDir` 时，会将 favicon 下载到该目录（文件名为 `{域名}.{原始后缀}`），已存在则跳过；`avatar` = `faviconPathPrefix` + "/" + domain + ext（未设 `-faviconPathPrefix` 时用 `faviconDir`）；未指定 `-faviconDir` 时 `avatar` 为远程 URL。由前端回退到默认图仅在以上均不可用时。
+生成的 JSON 供博客邻居页使用。`published` 与 `updated` 均为 `YYYY-MM-DD HH:MM:SS`。每条 item 可含 `category`（来自 rss.txt 的「分类,URL」）。**avatar**：若 feed 未提供图片，则检查站点 `origin/favicon.ico` 是否存在；不存在则检查 `origin/favicon.svg`；再不存在则抓取首页 HTML，解析 `link rel="icon"` 的 `href`；仍无则兜底使用 Google favicon 服务。当指定 `-faviconDir` 时，会将 favicon 下载到该目录，文件名为 `{domain}_{hash(avatarURL)}.{后缀}`（同一头像 URL 对应同一文件，多用户/频道如 YouTube、B站互不覆盖），已存在则跳过；`avatar` = `faviconPathPrefix` + "/" + filename；未指定 `-faviconDir` 时 `avatar` 为远程 URL。由前端回退到默认图仅在以上均不可用时。
 
 ```json
 {
