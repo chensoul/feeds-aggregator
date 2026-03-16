@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import UTC, datetime
+import random
 from time import monotonic
 
 from .aggregator import AggregationConfig
@@ -25,6 +26,7 @@ class RunAggregationRequest:
     max_total_items: int
     max_days: int
     timezone_name: str
+    avatar_delay_ms: int = 200
     avatar_dir: str | None = None
     failure_log_path: str | None = None
     validate_only: bool = False
@@ -45,15 +47,17 @@ class RunAggregationResult:
 def run_aggregation(request: RunAggregationRequest) -> RunAggregationResult:
     started_at = monotonic()
     input_result = load_sources(request.sources_path)
+    sources = shuffle_sources(input_result.sources)
     if request.validate_only:
         processed = ProcessedOutput(items=[], updated="")
         duration_seconds = monotonic() - started_at
         report = TaskReport(
             outcome="success",
-            total_sources=len(input_result.sources),
+            total_sources=len(sources),
             successful_sources=0,
             failed_sources=0,
             output_items=0,
+            downloaded_avatars=0,
             duration_seconds=duration_seconds,
             failures=[],
         )
@@ -75,11 +79,12 @@ def run_aggregation(request: RunAggregationRequest) -> RunAggregationResult:
         now=now,
     )
     aggregation, source_items = process_sources_to_items(
-        input_result.sources,
+        sources,
         aggregation_config=AggregationConfig(timeout_seconds=request.timeout_seconds, workers=request.workers),
         processing_config=processing_config,
         output_path=request.output_path,
         avatar_dir=request.avatar_dir,
+        avatar_delay_ms=request.avatar_delay_ms,
     )
     processed = build_processed_output(source_items, config=processing_config, now=now)
 
@@ -117,3 +122,9 @@ def run_aggregation(request: RunAggregationRequest) -> RunAggregationResult:
         failure_log_path=written_failure_log_path,
         failure_log_error=failure_log_error,
     )
+
+
+def shuffle_sources(sources: list) -> list:
+    shuffled = list(sources)
+    random.shuffle(shuffled)
+    return shuffled

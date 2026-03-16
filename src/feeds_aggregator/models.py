@@ -31,6 +31,7 @@ class RawFeedDocument:
     title: str | None
     entries: list[RawFeedEntry]
     avatar: str | None = None
+    homepage_url: str | None = None
 
 
 @dataclass(slots=True, frozen=True)
@@ -71,6 +72,7 @@ class ProcessedItem:
     avatar: str | None = None
     feed_domain: str | None = None
     source_key: str | None = None
+    source_homepage: str | None = None
 
 
 @dataclass(slots=True, frozen=True)

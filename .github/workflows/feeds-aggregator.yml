@@ -22,6 +22,11 @@ on:
         required: false
         type: string
         default: "15"
+      avatar-delay-ms:
+        description: Delay between avatar discovery/download requests in milliseconds
+        required: false
+        type: string
+        default: "200"
       max-items-per-source:
         description: Max items per source
         required: false
@@ -36,7 +41,7 @@ on:
         description: Keep only items from recent days
         required: false
         type: string
-        default: "180"
+        default: "0"
       timezone:
         description: IANA timezone for output timestamps
         required: false
@@ -77,6 +82,7 @@ jobs:
           output: ${{ inputs.output }}
           workers: ${{ inputs.workers }}
           timeout: ${{ inputs.timeout }}
+          avatar-delay-ms: ${{ inputs.avatar-delay-ms }}
           max-items-per-source: ${{ inputs.max-items-per-source }}
           max-total-items: ${{ inputs.max-total-items }}
           max-days: ${{ inputs.max-days }}

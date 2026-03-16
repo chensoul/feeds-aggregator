@@ -15,6 +15,7 @@ class TaskReport:
     successful_sources: int
     failed_sources: int
     output_items: int
+    downloaded_avatars: int
     duration_seconds: float
     failures: list[SourceAggregationFailure]
 
@@ -39,6 +40,16 @@ def build_task_report(
         successful_sources=len(aggregation.successes),
         failed_sources=len(aggregation.failures),
         output_items=len(processed.items),
+        downloaded_avatars=count_downloaded_avatars(processed),
         duration_seconds=duration_seconds,
         failures=aggregation.failures,
     )
+
+
+def count_downloaded_avatars(processed: ProcessedOutput) -> int:
+    local_avatars = {
+        item.avatar
+        for item in processed.items
+        if item.avatar and not str(item.avatar).startswith(("http://", "https://"))
+    }
+    return len(local_avatars)

@@ -13,7 +13,7 @@ DEFAULT_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 DEFAULT_TIMEZONE = "UTC"
 DEFAULT_MAX_ITEMS_PER_SOURCE = 10
 DEFAULT_MAX_TOTAL_ITEMS = 0
-DEFAULT_MAX_DAYS = 180
+DEFAULT_MAX_DAYS = 0
 
 
 @dataclass(slots=True, frozen=True)
@@ -77,6 +77,7 @@ def normalize_document(document: RawFeedDocument, *, timezone_name: str) -> list
     avatar = choose_avatar(document)
     feed_domain = determine_feed_domain(document)
     source_key = document.source.source_url
+    source_homepage = normalize_http_url(document.homepage_url)
     timezone = resolve_timezone(timezone_name)
     items: list[ProcessedItem] = []
 
@@ -96,6 +97,7 @@ def normalize_document(document: RawFeedDocument, *, timezone_name: str) -> list
                 avatar=avatar,
                 feed_domain=feed_domain,
                 source_key=source_key,
+                source_homepage=source_homepage,
             )
         )
 

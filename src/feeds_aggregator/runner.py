@@ -18,6 +18,7 @@ def process_sources_to_items(
     processing_config: ProcessingConfig,
     output_path: str,
     avatar_dir: str | None,
+    avatar_delay_ms: int,
 ) -> tuple[AggregationResult, list[ProcessedItem]]:
     if not sources:
         return AggregationResult(), []
@@ -44,6 +45,7 @@ def process_sources_to_items(
                 processing_config=processing_config,
                 output_path=output_path,
                 avatar_dir=avatar_dir,
+                avatar_delay_ms=avatar_delay_ms,
             )
             future_to_source[future] = source
             return True
@@ -82,6 +84,7 @@ def process_single_source(
     processing_config: ProcessingConfig,
     output_path: str,
     avatar_dir: str | None,
+    avatar_delay_ms: int,
 ) -> SourceProcessingResult:
     document = fetch_and_parse_source(source, aggregation_config)
     now = processing_config.now or datetime.now(UTC)
@@ -92,6 +95,7 @@ def process_single_source(
         avatar_dir=avatar_dir,
         timeout_seconds=max(1.0, aggregation_config.timeout_seconds),
         workers=1,
+        delay_ms=avatar_delay_ms,
     )
     return document, persisted_items
 

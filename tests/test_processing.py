@@ -231,6 +231,29 @@ class ProcessingTests(unittest.TestCase):
 
         self.assertEqual("https://cdn.example.com/icon.png", output.items[0].avatar)
 
+    def test_preserves_feed_homepage_for_avatar_discovery(self):
+        source = FeedSource(source_url="https://feeds.feedburner.com/example", source_name="Example")
+        result = AggregationResult(
+            successes=[
+                RawFeedDocument(
+                    source=source,
+                    title="Example Feed",
+                    homepage_url="https://example.com/",
+                    entries=[
+                        RawFeedEntry(
+                            title="Post",
+                            link="https://example.com/post",
+                            published="2026-03-13T10:00:00Z",
+                        )
+                    ],
+                )
+            ]
+        )
+
+        output = process_aggregation_result(result)
+
+        self.assertEqual("https://example.com/", output.items[0].source_homepage)
+
     def test_leaves_avatar_empty_when_feed_avatar_missing(self):
         source = FeedSource(source_url="https://example.com/feed.xml", source_name="Example")
         result = AggregationResult(
