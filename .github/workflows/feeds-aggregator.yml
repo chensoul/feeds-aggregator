@@ -1,0 +1,86 @@
+name: Reusable Aggregate
+
+on:
+  workflow_call:
+    inputs:
+      sources:
+        description: Path to the sources input file in the caller workspace
+        required: true
+        type: string
+      output:
+        description: Path to the generated feeds JSON file
+        required: false
+        type: string
+        default: data/feeds.json
+      workers:
+        description: Concurrent source workers
+        required: false
+        type: string
+        default: "8"
+      timeout:
+        description: Per-source request timeout in seconds
+        required: false
+        type: string
+        default: "15"
+      max-items-per-source:
+        description: Max items per source
+        required: false
+        type: string
+        default: "10"
+      max-total-items:
+        description: Max total items
+        required: false
+        type: string
+        default: "0"
+      max-days:
+        description: Keep only items from recent days
+        required: false
+        type: string
+        default: "180"
+      timezone:
+        description: IANA timezone for output timestamps
+        required: false
+        type: string
+        default: ""
+      avatar-dir:
+        description: Directory to store downloaded avatar images
+        required: false
+        type: string
+        default: ""
+      failure-log:
+        description: Optional JSON file path for writing failed feed details
+        required: false
+        type: string
+        default: ""
+      validate-only:
+        description: Validate inputs and configuration without fetching feeds or writing output
+        required: false
+        type: string
+        default: ""
+
+jobs:
+  aggregate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout caller repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
+      - name: Run feeds-aggregator action
+        uses: chensoul/feeds-aggregator@main
+        with:
+          sources: ${{ inputs.sources }}
+          output: ${{ inputs.output }}
+          workers: ${{ inputs.workers }}
+          timeout: ${{ inputs.timeout }}
+          max-items-per-source: ${{ inputs.max-items-per-source }}
+          max-total-items: ${{ inputs.max-total-items }}
+          max-days: ${{ inputs.max-days }}
+          timezone: ${{ inputs.timezone }}
+          avatar-dir: ${{ inputs.avatar-dir }}
+          failure-log: ${{ inputs.failure-log }}
+          validate-only: ${{ inputs.validate-only }}
